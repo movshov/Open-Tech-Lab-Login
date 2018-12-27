@@ -49,7 +49,7 @@ Download/Build Instructions:
 
 you can download the latest stable release at:
 
-//insert github link here
+https://github.com/movshov/Open-Tech-Lab-Login
 
 BUILD INSTRUCTIONS:
     Some modifications will need to be made for the program to work with your own directories.
