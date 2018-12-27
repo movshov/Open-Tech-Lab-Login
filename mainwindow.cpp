@@ -168,7 +168,7 @@ void Stack::saverecords(){
     if(!head) return;
     QString fileName = LOG_DIR; //"D:/QT5/Projects/Lab_Login/SavedRecords/"
     fileName += QDateTime::currentDateTime().toString("MMMM_yyyy"); //gets month and year.
-    fileName += ".txt"; //append .csv file extension to name
+    fileName += ".txt"; //append .txt file extension to name
     QFile data(fileName);
     if(data.open(QFile::WriteOnly | QFile::Append)){
         QTextStream out(&data); //converting everything to Text so QTextream will work.
@@ -226,7 +226,7 @@ void Stack::monthlysave(QString SaveMonth){
     QString fileName = LOG_DIR; //"D:/QT5/Projects/Lab_Login/SavedRecords/"
     fileName += SaveMonth;   //given from monthlysave in MainWindow class.
     fileName += QDateTime::currentDateTime().toString("_yyyy"); //gets month and year.
-    fileName += ".txt"; //append .csv file extension to name
+    fileName += ".txt"; //append .txt file extension to name
     QFile data(fileName);
 
     if(data.open(QFile::WriteOnly | QFile::Append )){
