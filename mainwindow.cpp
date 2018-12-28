@@ -77,8 +77,6 @@ void Stack::add(Student * toAdd){
     tail->next = toAdd; //set next pointer.
     toAdd->previous = tail; //set previous pointer.
     tail = toAdd;   //move tail over.
-    //toAdd->next = head; //set new nodes next to head;
-    //head = toAdd;   //reassign head as the new node.
     return;
 }
 
@@ -222,11 +220,12 @@ void Stack::saverecords(){
 * @param head
 *       Is a doubly linked list of sign In/Out records.
 */
-void Stack::monthlysave(QString SaveMonth){
+void Stack::monthlysave(QString SaveMonth, QString SaveYear){
     QString fileName = LOG_DIR; //"D:/QT5/Projects/Lab_Login/SavedRecords/"
     fileName += SaveMonth;   //given from monthlysave in MainWindow class.
-    fileName += QDateTime::currentDateTime().toString("_yyyy"); //gets month and year.
-    fileName += ".txt"; //append .txt file extension to name
+    fileName += "_";        //append "_" for better clarity.
+    fileName += SaveYear;    //Year given from checkmonth function.
+    fileName += ".txt"; //append .csv file extension to name
     QFile data(fileName);
 
     if(data.open(QFile::WriteOnly | QFile::Append )){
@@ -360,7 +359,6 @@ void Database::addStudent(QString id, QString name){
       }
       current->next = new RegInfo(id, name);
     }
-   // writeOut();
 }
 
 /**
@@ -441,6 +439,7 @@ MainWindow::MainWindow(){
     resize(XRES,YRES);  //resize to default x and y res.
     showFullScreen();   //sets to full screen mode.
 
+
 }
 //CheckMonth slots
 /**
@@ -454,9 +453,11 @@ void MainWindow::checkmonth(){
     if(day.compare("1")==0){   //it is a new month.
         QString checkmonth = QDate::currentDate().toString("M"); //get the current Month.
         QString SaveMonth = nullptr; //reset before reassigning.
+        QString SaveYear = QString::number(date.year());
 
         if(checkmonth.compare("1")==0){ //check if month is January.
             SaveMonth = "December"; //save as month prior.
+            SaveYear = QString::number(date.year()-1);  //get the current year-1. Accounting for New Years.
         }
         else if(checkmonth.compare("2")==0){    //check if month is February.
             SaveMonth = "January"; //save as month prior.
@@ -481,7 +482,7 @@ void MainWindow::checkmonth(){
         }else if(checkmonth.compare("12")==0){  //check if month is December.
             SaveMonth = "November";
         }
-        stack.monthlysave(SaveMonth);
+        stack.monthlysave(SaveMonth, SaveYear);
         numberOnList = 0;   //after saveing reset list #.
         updateTable();
         return;
@@ -507,7 +508,6 @@ void MainWindow::signInLogInButtonPressed() {
 
     RegInfo * student = database.getStudent(id);
     if (!student) { //if id is not in the database
-      //theList->hide();
       signInWindow->closeWindow();
       signInWindow->openWindow();
       errorText->move(1080, 525);
@@ -524,6 +524,7 @@ void MainWindow::signInLogInButtonPressed() {
                signInWindow->closeWindow(); //close old window.
                updateTable();
                signInWindow->openWindow();  //open new updated window.
+               theList->scrollToBottom();
                return;
               }
             current = current->previous;    //travese from end to front of stack.
@@ -535,10 +536,10 @@ void MainWindow::signInLogInButtonPressed() {
       date = QDate::currentDate();  //get the current date.
       ++numberOnList;
       stack.add(new Student(id, name, signInTime, signOutTime, date));
-   //   theList->hide();
       updateTable();
       signInWindow->closeWindow();
       signInWindow->openWindow();
+       theList->scrollToBottom();
       return;
     }
 
@@ -546,8 +547,9 @@ void MainWindow::signInLogInButtonPressed() {
 void MainWindow::buildTable(int rows) {
   theList->removeRow(rows);
   theList->insertRow(rows);
-  theList->move(400, 100);
-  theList->resize(850, 300);
+  //theList->move(400,100);
+  theList->move(450, 100);
+  theList->resize(870, 300);
   theList->setHorizontalHeaderLabels(QStringList() << "Name" << "Date" << "Sign-in Time" << "Sing-Out Time");
   theList->setEditTriggers(QAbstractItemView::NoEditTriggers);
   theList->horizontalHeader()->setSectionResizeMode(QHeaderView::Fixed);

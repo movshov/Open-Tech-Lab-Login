@@ -14,19 +14,13 @@ SignInWindow::SignInWindow(QWidget * parent) : QWidget(parent){
     loginText->hide();
 
     loginButton = new QPushButton("Sign-in", parent);
-    loginButton->move(850, 500);
+    loginButton->move(870, 500);
     loginButton->resize(200, 80);
     loginButton->hide();
     loginButton->setFont(buttonFont);
-/*
-    noIdButton = new QPushButton("Sign-in without\nregistering", parent);
-    noIdButton->move(550, 650);
-    noIdButton->resize(300, 80);
-    noIdButton->setFont(buttonFont);
-    noIdButton->hide();
-*/
+
     loginDialog = new QLineEdit(parent);
-    loginDialog->move(650, 500);
+    loginDialog->move(670, 500);
     loginDialog->resize(200, 80);
     loginDialog->setPlaceholderText("ODIN ID");
     loginDialog->setMaxLength(9);
@@ -38,14 +32,13 @@ SignInWindow::SignInWindow(QWidget * parent) : QWidget(parent){
 
     title = new QLabel("Open Tech Lab Sign-IN/OUT", parent);
     title->setFont(font);
-    title->move(550, 0);
+    title->move(580, 0);
     title->resize(600, 150);
   }
 
   void SignInWindow::openWindow() {
     loginText->show();
     loginButton->show();
-  //  noIdButton->show();
     loginDialog->show();
     loginDialog->setFocus();
   }
@@ -53,7 +46,6 @@ SignInWindow::SignInWindow(QWidget * parent) : QWidget(parent){
   void SignInWindow::closeWindow() {
     loginText->hide();
     loginButton->hide();
-  //  noIdButton->hide();
     loginDialog->hide();
     loginDialog->clear();
   }

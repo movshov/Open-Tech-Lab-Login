@@ -41,7 +41,7 @@ struct Stack {
     bool containsName(QString); //checks LLL to see if they are already on the list.
     void removeFromList();
     void saverecords();  //record the stack into a .txt file if the program is forcefully shut off.   
-    void monthlysave(QString);  //if one month has passed save the stack into a .txt file named "that month + year.txt"
+    void monthlysave(QString, QString);  //if one month has passed save the stack into a .txt file named "that month + year.txt"
     //EX: "December_2019.txt", "November_2019.txt"
     Student * head; //head pointer.
     Student * tail; //tail pointer.
@@ -68,7 +68,7 @@ private:
     RegInfo ** table;
     int hash(QString);
 };
-
+//Resolution.
 const int XRES = 1366, YRES = 768;
 
 class MainWindow : public QMainWindow{
