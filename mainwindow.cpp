@@ -539,7 +539,7 @@ void MainWindow::signInLogInButtonPressed() {
       updateTable();
       signInWindow->closeWindow();
       signInWindow->openWindow();
-       theList->scrollToBottom();
+      theList->scrollToBottom();
       return;
     }
 
