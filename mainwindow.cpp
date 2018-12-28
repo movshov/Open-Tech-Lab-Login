@@ -480,7 +480,7 @@ void MainWindow::checkmonth(){
         }else if(checkmonth.compare("11")==0){  //check if month is November.
             SaveMonth = "October"; //save as month prior.
         }else if(checkmonth.compare("12")==0){  //check if month is December.
-            SaveMonth = "November";
+            SaveMonth = "November"; //save as month prior. 
         }
         stack.monthlysave(SaveMonth, SaveYear);
         numberOnList = 0;   //after saveing reset list #.
