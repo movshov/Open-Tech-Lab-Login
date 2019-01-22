@@ -1,6 +1,8 @@
 #include "mainwindow.h"
-//#include "ui_mainwindow.h"
+#include "ui_mainwindow.h"
 #include "signinwindow.h"
+#include "classwindow.h"
+#include "confirmwindow.h"
 
 /**
  * @brief Student::Student
@@ -15,12 +17,12 @@
  *      The time at which the student checks out of the room.
  */
 
-Student::Student(QString id, QString name, QTime timeIn, QTime timeOut, QDate date){
+Student::Student(QString id, QString name, QString Class, QTime timeIn, QDate date){
     this->id = id;
     this->name = name;
+    this->Class = Class;
     this->date = date;
     this->signInTime = timeIn;
-    this->signOutTime = timeOut;
     this->next = nullptr;   //set next pointer to null.
     this->previous = nullptr;   //set previous pointer to null.
 }
@@ -44,20 +46,11 @@ Stack::Stack(){
 }
 
 /**
-* @brief Stack::Stack
-*       Copy constructor for Stack.
-* @param toCopy
-*       toCopy is the new Stack we want to use.
-*/
-Stack::Stack(const Stack & toCopy){
-
-}
-/**
  *  @brief Stack::~Stack
  *      Destructor for the class containing the list of students that have visited the room.
  */
 Stack::~Stack(){
-    saverecords();  //save the stack to Records.txt
+    saverecords();  //save the stack to SavedRecords if program is shut down.
     if(head != nullptr) delete head;
 }
 
@@ -80,68 +73,12 @@ void Stack::add(Student * toAdd){
     return;
 }
 
-/**
-*   @brief Stack::containsId
-*       Determine if the student is already on the list with a given ID number and check to see whether they are checking in or out.
-*   @param id
-*       Student's id number
-*   @return
-*       True if the student is on the list but timeOut variable is null.
-*       False if the student is on the list and timeIn and timeOut are both not null.
-**/
-bool Stack::containsId(QString id){
-    if(head == nullptr)
-        return false;
-    else {
-        Student * current = tail;   //start at the end of the list.(last instance of person should appear first).
-        while(current != nullptr){
-            if(current->id.compare(id) == 0){   //if we found the student we are looking for.
-                if((current->signInTime.isValid()) && (current->signOutTime.isValid()))   //if timeIn and timeOut already exist.
-                    return false;
-                else if((current->signInTime.isValid()) && (current->signOutTime.isNull())) {   //if timeIn exists but timeOut is NULL.
-                    return true;
-                }
-            }
-            current = current->previous;    //traverse towards the front of the list.
-        }
-        return false;   //student was never found.
-    }
-}
-
 
 /**
-*   @brief Stack::containsName
-*       Determine if the student is already on the list with a given name and check to see whether they are checking in or out.
-*   @param id
-*       Student's name.
-*   @return
-*       True if the student is on the list but timeOut variable is null.
-*       False if the student is on the list and timeIn and timeOut are both not null.
-**/
-bool Stack::containsName(QString name){
-    if(head == nullptr)
-        return false;
-    else {
-        Student * current = head;
-        while(current != nullptr){
-            if(current->name.toLower().compare(name.toLower()) == 0){   //if we found the student we are looking for.
-                if((current->signInTime.isValid()) && (current->signOutTime.isValid()))   //if timeIn and timeOut already exist.
-                    return false;
-                else if((current->signInTime.isValid()) && (current->signOutTime.isNull())) {   //if timeIn exists but timeOut is NULL.
-                    return true;
-                }
-            }
-            current = current->next;
-        }
-           return false;   //student was never found.
-    }
-}
-
-/**
-* @brief Stack::removeFromList
+* @brief Stack::DeleteList
 *       Will remove everyone from the list.
 */
-void Stack::removeFromList(){
+void Stack::DeleteList(){
 
     Student * current = head;
 
@@ -164,48 +101,27 @@ void Stack::removeFromList(){
 */
 void Stack::saverecords(){
     if(!head) return;
-    QString fileName = LOG_DIR; //"D:/QT5/Projects/Lab_Login/SavedRecords/"
-    fileName += QDateTime::currentDateTime().toString("MMMM_yyyy"); //gets month and year.
-    fileName += ".txt"; //append .txt file extension to name
+    QString fileName = LOG_DIR; //"D:/QT5/Projects/Circuit_Lounge_Login/SavedRecords/"
+    fileName += QDateTime::currentDateTime().toString("MMMM dd, yyyy"); //gets month and year.
+    fileName += ".csv"; //append .csv file extension to name
     QFile data(fileName);
     if(data.open(QFile::WriteOnly | QFile::Append)){
         QTextStream out(&data); //converting everything to Text so QTextream will work.
         //Don't use QDataStream, it gets garbage symbols into .txt file.
         Student * current = head;
-        QString empty = QString::fromUtf8(" ____ ");
+        /*
         QString delimiter1 = QString::fromUtf8(" -> ");
         QString delimiter2 = QString::fromUtf8(" : ");
-        /*
-        QString Newline = QString::fromUtf8("'\n'");
-        out << "Name";
-        out << delimiter1;
-        out << "Date";
-        out << delimiter2;
-        out << "Sign In";
-        out << delimiter2;
-        out << "Sign out";
-        out <<'\n';
-        out <<"--------------------------------------------------";
-        out <<'\n';
         */
+        QString comma = QString::fromUtf8(",");
         while(current){
-            out << current->name;   //record name.
-            out << delimiter1;
-            out << current->date.toString("MMMM dd, yyyy");
-            out << delimiter2;
-            if(current->signInTime.isNull()==true){
-                out << empty;
-            }
-            else{
-                 out << current->signInTime.toString("hh:mm a"); //record time in.
-            }
-            out << delimiter2;
-            if(current->signOutTime.isNull()==true){
-                out << empty;
-            }
-            else {
-                out << current->signOutTime.toString("hh:mm a"); //record time out.
-            }
+            out << current->id;   //record student's ID.
+            out << comma;
+            out << current->date.toString("MMMM dd yyyy");
+            out << comma;
+            out << current->Class;  //Class student needs help in
+            out << comma;
+            out << current->signInTime.toString("hh:mm a"); //record time student signed up.
             out << '\n';    //new line.
             current = current->next;
         }
@@ -215,64 +131,42 @@ void Stack::saverecords(){
 }
 
 /**
-* @brief Stack::monthlysave
-*       Saves the stack into a .txt file if one month has passed.
+* @brief Stack::dailysave
+*       Saves the stack into a .txt file if it is past 4PM.
 * @param head
 *       Is a doubly linked list of sign In/Out records.
 */
-void Stack::monthlysave(QString SaveMonth, QString SaveYear){
+void Stack::dailysave(QString SaveFileName){
     QString fileName = LOG_DIR; //"D:/QT5/Projects/Lab_Login/SavedRecords/"
-    fileName += SaveMonth;   //given from monthlysave in MainWindow class.
-    fileName += "_";        //append "_" for better clarity.
-    fileName += SaveYear;    //Year given from checkmonth function.
-    fileName += ".txt"; //append .csv file extension to name
+    fileName += SaveFileName;   //given from monthlysave in MainWindow class.
+    fileName += ".csv"; //append .csv file extension to name
     QFile data(fileName);
 
     if(data.open(QFile::WriteOnly | QFile::Append )){
         QTextStream out(&data); //converting everything to Text so QTextream will work.
         //Don't use QDataStream, it gets garbage symbols into .txt file.
         Student * current = head;
+       /*
         QString empty = QString::fromUtf8(" ____ ");
         QString delimiter1 = QString::fromUtf8(" -> ");
         QString delimiter2 = QString::fromUtf8(" : ");
-        /*
-        QString Newline = QString::fromUtf8("'\n'");
-        out << "Name";
-        out << delimiter1;
-        out << "Date";
-        out << delimiter2;
-        out << "Sign In";
-        out << delimiter2;
-        out << "Sign out";
-        out <<'\n';
-        out <<"--------------------------------------------------";
-        out <<'\n';
-*/
+        */
+        QString comma = QString::fromUtf8(",");
         while(current){
-            out << current->name;   //record name.
-            out << delimiter1;
-            out << current->date.toString("MMMM dd, yyyy");
-            out << delimiter2;
-            if(current->signInTime.isNull()==true){
-                out << empty;
-            }
-            else{
-                out << current->signInTime.toString("hh:mm a"); //record time in.
-            }
-            out << delimiter2;
-            if(current->signOutTime.isNull()==true){
-                out << empty;
-            }
-            else {
-                out << current->signOutTime.toString("hh:mm a"); //record time out.
-            }
+            out << current->id;   //record student's ID.
+            out << comma;
+            out << current->date.toString("MMMM dd yyyy");
+            out << comma;
+            out << current->Class;  //Class student needs help in
+            out << comma;
+            out << current->signInTime.toString("hh:mm a"); //record time student signed up.
             out << '\n';    //new line.
             current = current->next;
         }
 
         data.flush();
         data.close(); //close the opened file.
-        removeFromList();   //Clean the Stack.
+        DeleteList();   //Clean the Stack.
     }
 
 }
@@ -313,7 +207,7 @@ Database::Database(){   //Constructor.
         table[i] = nullptr;
     }
 
-    QFile data(ACCESS_FILE);    //open file containing people who have access.
+    QFile data(RECORDS_FILE);    //open file containing people who have used the program before.
     if(data.open(QFile::ReadOnly)) {    //read in students from RegInfo.dat
        QTextStream inFile(&data);
         while(!inFile.atEnd()){
@@ -413,6 +307,8 @@ int Database::hash(QString id) {
 
 MainWindow::MainWindow(){
     signInWindow = new SignInWindow(this);
+    classWindow = new ClassWindow(this);
+    confirmWindow = new ConfirmWindow(this);
 
     errorText = new QLabel(this);
     errorText->resize(400,40);
@@ -420,76 +316,82 @@ MainWindow::MainWindow(){
 
     //This is the table of students who have signed in.
     numberOnList = 0;
-    theList = new QTableWidget(0, 4, this); //QTableWidget(row,col,parent).
+    theList = new QTableWidget(0, 3, this); //QTableWidget(row,col,parent).
     buildTable(numberOnList);
 
     signInWindow->openWindow();
 
     timer = new QTimer(this);
-    timer->start(86400000); //This will only run once every 24 hours.
+    //timer->start(86400000); //This will only run once every 24 hours.
+    //timer->start(300000);     //msec in 5 minutes.
     //timer->start(60000);    //msec in 1 minute used for testing purposes.
-    //timer->start(30000);    //msec in 30sec used for testing purposes.
+    timer->start(30000);    //msec in 30sec used for testing purposes.
 
     //setup signal and slot
-    connect(timer, SIGNAL(timeout()),this, SLOT(checkmonth()));
+    connect(timer, SIGNAL(timeout()),this, SLOT(checktime()));
     connect(signInWindow->loginButton, SIGNAL(clicked()), this, SLOT(signInLogInButtonPressed()));
     connect(signInWindow->loginDialog, SIGNAL(returnPressed()), this, SLOT(signInLogInButtonPressed()));
 
-    setWindowTitle("PDX Open Tech Lab Sign In");
+    connect(classWindow->ECE101, SIGNAL(clicked()), this, SLOT(classECE101ButtonPressed()));
+    connect(classWindow->ECE102, SIGNAL(clicked()), this, SLOT(classECE102ButtonPressed()));
+    connect(classWindow->ECE103, SIGNAL(clicked()), this, SLOT(classECE103ButtonPressed()));
+    connect(classWindow->ECE171, SIGNAL(clicked()), this, SLOT(classECE171ButtonPressed()));
+    connect(classWindow->ECE172, SIGNAL(clicked()), this, SLOT(classECE172ButtonPressed()));
+    connect(classWindow->ECE211, SIGNAL(clicked()), this, SLOT(classECE211ButtonPressed()));
+    connect(classWindow->ECE212, SIGNAL(clicked()), this, SLOT(classECE212ButtonPressed()));
+    connect(classWindow->ECE221, SIGNAL(clicked()), this, SLOT(classECE221ButtonPressed()));
+    connect(classWindow->ECE222, SIGNAL(clicked()), this, SLOT(classECE222ButtonPressed()));
+    connect(classWindow->ECE223, SIGNAL(clicked()), this, SLOT(classECE223ButtonPressed()));
+    connect(classWindow->ECE241, SIGNAL(clicked()), this, SLOT(classECE241ButtonPressed()));
+    connect(classWindow->ECE315, SIGNAL(clicked()), this, SLOT(classECE315ButtonPressed()));
+    connect(classWindow->ECE316, SIGNAL(clicked()), this, SLOT(classECE316ButtonPressed()));
+    connect(classWindow->ECE317, SIGNAL(clicked()), this, SLOT(classECE317ButtonPressed()));
+    connect(classWindow->ECE321, SIGNAL(clicked()), this, SLOT(classECE321ButtonPressed()));
+    connect(classWindow->ECE322, SIGNAL(clicked()), this, SLOT(classECE322ButtonPressed()));
+    connect(classWindow->ECE323, SIGNAL(clicked()), this, SLOT(classECE323ButtonPressed()));
+    connect(classWindow->ECE331, SIGNAL(clicked()), this, SLOT(classECE331ButtonPressed()));
+    connect(classWindow->ECE332, SIGNAL(clicked()), this, SLOT(classECE332ButtonPressed()));
+    connect(classWindow->ECE341, SIGNAL(clicked()), this, SLOT(classECE341ButtonPressed()));
+    connect(classWindow->ECE347, SIGNAL(clicked()), this, SLOT(classECE347ButtonPressed()));
+    connect(classWindow->ECE348, SIGNAL(clicked()), this, SLOT(classECE348ButtonPressed()));
+    connect(classWindow->ECE351, SIGNAL(clicked()), this, SLOT(classECE351ButtonPressed()));
+    connect(classWindow->ECE361, SIGNAL(clicked()), this, SLOT(classECE361ButtonPressed()));
+    connect(classWindow->ECE362, SIGNAL(clicked()), this, SLOT(classECE362ButtonPressed()));
+    connect(classWindow->ECE371, SIGNAL(clicked()), this, SLOT(classECE371ButtonPressed()));
+    connect(classWindow->ECE372, SIGNAL(clicked()), this, SLOT(classECE372ButtonPressed()));
+    connect(classWindow->ECE373, SIGNAL(clicked()), this, SLOT(classECE373ButtonPressed()));
+    connect(classWindow->ECE383, SIGNAL(clicked()), this, SLOT(classECE383ButtonPressed()));
+    connect(classWindow->other, SIGNAL(clicked()), this, SLOT(classOtherButtonPressed()));
+    connect(classWindow->cancelButton, SIGNAL(clicked()), this, SLOT(classCancelButtonPressed()));
+
+    connect(confirmWindow->confirmButton, SIGNAL(clicked()), this, SLOT(confirmConfirmButtonPressed()));
+    connect(confirmWindow->cancelButton, SIGNAL(clicked()), this, SLOT(confirmCancelButtonPressed()));
+
+    setWindowTitle("IEEE Tutoring");
     resize(XRES,YRES);  //resize to default x and y res.
-    showFullScreen();   //sets to full screen mode.
+  //  showFullScreen();   //Full Screen mode for Windows.
+    QTimer::singleShot(300, this, SLOT(showFullScreen())); //Full Screen mode for MAC.
 
 
 }
 //CheckMonth slots
 /**
-* @brief MainWindow::checkmonth
-*       Used to check if one month has passed. If so, then save the stack of the previous month.
+* @brief MainWindow::checktime
+*       Used to check to see if it's past 4PM. If so, then save the stack and close the application.
 */
 
-void MainWindow::checkmonth(){
+void MainWindow::checktime(){
     if(!stack.head) return; //if there is no list.
-    QString day = QDateTime::currentDateTime().toString("d");   //will return an integer as a String.
-    if(day.compare("1")==0){   //it is a new month.
-        QString checkmonth = QDate::currentDate().toString("M"); //get the current Month.
-        QString SaveMonth = nullptr; //reset before reassigning.
-        QString SaveYear = QString::number(date.year());
-
-        if(checkmonth.compare("1")==0){ //check if month is January.
-            SaveMonth = "December"; //save as month prior.
-            SaveYear = QString::number(date.year()-1);  //get the current year-1. Accounting for New Years.
-        }
-        else if(checkmonth.compare("2")==0){    //check if month is February.
-            SaveMonth = "January"; //save as month prior.
-        }else if(checkmonth.compare("3")==0){   //check if month is March.
-            SaveMonth = "February"; //save as month prior.
-        }else if(checkmonth.compare("4")==0){   //check if month is April.
-            SaveMonth = "March"; //save as month prior.
-        }else if(checkmonth.compare("5")==0){   //check if month is May.
-            SaveMonth = "April"; //save as month prior.
-        }else if(checkmonth.compare("6")==0){   //check if month is June.
-            SaveMonth = "May"; //save as month prior.
-        }else if(checkmonth.compare("7")==0){   //check if month is July.
-            SaveMonth = "June"; //save as month prior.
-        }else if(checkmonth.compare("8")==0){   //check if month is August.
-            SaveMonth = "July"; //save as month prior.
-        }else if(checkmonth.compare("9")==0){   //check if month is September.
-            SaveMonth = "August"; //save as month prior.
-        }else if(checkmonth.compare("10")==0){  //check if month is October.
-            SaveMonth = "September"; //save as month prior.
-        }else if(checkmonth.compare("11")==0){  //check if month is November.
-            SaveMonth = "October"; //save as month prior.
-        }else if(checkmonth.compare("12")==0){  //check if month is December.
-            SaveMonth = "November"; //save as month prior. 
-        }
-        stack.monthlysave(SaveMonth, SaveYear);
-        numberOnList = 0;   //after saveing reset list #.
-        updateTable();
+    QString checkTime = QTime::currentTime().toString("hh"); //get the current time (00 to 23).
+    if (checkTime != "00") { //it is not 4PM.
         return;
     }
-    else{
-        return; //day was not the 1st of the month.
-    }
+    QString SaveFileName = QDate::currentDate().toString("MMMM dd, yyyy"); //get the current Month.
+    stack.dailysave(SaveFileName);
+    numberOnList = 0;   //after saveing reset list #.
+    updateTable();
+    QCoreApplication::quit();   //quit the application.
+    return; //will never get hit but just in case.
 }
 /*
  * Sign-in Window SLOTS
@@ -514,50 +416,273 @@ void MainWindow::signInLogInButtonPressed() {
       errorText->setText("You do not have access to be in this room");
       errorText->show();
       return;
-    }
-    else { //if the id is registered, go to class window
-      if (stack.containsId(student->id)==true) {  //they are on the list but have not checked out.
-            Student * current = stack.tail; //grab the end of the list.
-            while(current != nullptr){
-            if(current->name.toLower().compare(student->name.toLower()) == 0){ //we found the student.
-               current->signOutTime = QTime::currentTime(); //set sign_out_time.
-               signInWindow->closeWindow(); //close old window.
-               updateTable();
-               signInWindow->openWindow();  //open new updated window.
-               theList->scrollToBottom();
-               return;
-              }
-            current = current->previous;    //travese from end to front of stack.
-            }
-      }
+    }  
       name = student->name;
       id = student->id;
       signInTime = QTime::currentTime();    //get the current time.
       date = QDate::currentDate();  //get the current date.
-      ++numberOnList;
-      stack.add(new Student(id, name, signInTime, signOutTime, date));
-      updateTable();
-      signInWindow->closeWindow();
-      signInWindow->openWindow();
-      theList->scrollToBottom();
-      return;
-    }
+      theList->hide();  //hide the stack.
+      signInWindow->closeWindow();  //close sign in window.
+      classWindow->OpenWindow();    //opne class window.
 
 }
+
+void MainWindow::classECE101ButtonPressed(){
+    Class = "ECE 101";
+    classWindow->CloseWindow();
+    confirmWindow->openWindow();
+    showConfirm();
+}
+
+void MainWindow::classECE102ButtonPressed(){
+    Class = "ECE 102";
+    classWindow->CloseWindow();
+    confirmWindow->openWindow();
+    showConfirm();
+}
+
+void MainWindow::classECE103ButtonPressed(){
+    Class = "ECE 103";
+    classWindow->CloseWindow();
+    confirmWindow->openWindow();
+    showConfirm();
+}
+
+void MainWindow::classECE171ButtonPressed(){
+    Class = "ECE 171";
+    classWindow->CloseWindow();
+    confirmWindow->openWindow();
+    showConfirm();
+}
+
+void MainWindow::classECE172ButtonPressed(){
+    Class = "ECE 172";
+    classWindow->CloseWindow();
+    confirmWindow->openWindow();
+    showConfirm();
+}
+
+void MainWindow::classECE211ButtonPressed(){
+    Class = "ECE 211";
+    classWindow->CloseWindow();
+    confirmWindow->openWindow();
+    showConfirm();
+}
+
+void MainWindow::classECE212ButtonPressed(){
+    Class = "ECE 212";
+    classWindow->CloseWindow();
+    confirmWindow->openWindow();
+    showConfirm();
+}
+
+void MainWindow::classECE221ButtonPressed(){
+    Class = "ECE 221";
+    classWindow->CloseWindow();
+    confirmWindow->openWindow();
+    showConfirm();
+}
+
+void MainWindow::classECE222ButtonPressed(){
+    Class = "ECE 222";
+    classWindow->CloseWindow();
+    confirmWindow->openWindow();
+    showConfirm();
+}
+
+void MainWindow::classECE223ButtonPressed(){
+    Class = "ECE 223";
+    classWindow->CloseWindow();
+    confirmWindow->openWindow();
+    showConfirm();
+}
+
+void MainWindow::classECE241ButtonPressed(){
+    Class = "ECE 241";
+    classWindow->CloseWindow();
+    confirmWindow->openWindow();
+    showConfirm();
+}
+
+void MainWindow::classECE315ButtonPressed(){
+    Class = "ECE 315";
+    classWindow->CloseWindow();
+    confirmWindow->openWindow();
+    showConfirm();
+}
+
+void MainWindow::classECE316ButtonPressed(){
+    Class = "ECE 316";
+    classWindow->CloseWindow();
+    confirmWindow->openWindow();
+    showConfirm();
+}
+
+void MainWindow::classECE317ButtonPressed(){
+    Class = "ECE 317";
+    classWindow->CloseWindow();
+    confirmWindow->openWindow();
+    showConfirm();
+}
+
+void MainWindow::classECE321ButtonPressed(){
+    Class = "ECE 321";
+    classWindow->CloseWindow();
+    confirmWindow->openWindow();
+    showConfirm();
+}
+
+void MainWindow::classECE322ButtonPressed(){
+    Class = "ECE 322";
+    classWindow->CloseWindow();
+    confirmWindow->openWindow();
+    showConfirm();
+}
+
+void MainWindow::classECE323ButtonPressed(){
+    Class = "ECE 323";
+    classWindow->CloseWindow();
+    confirmWindow->openWindow();
+    showConfirm();
+}
+
+void MainWindow::classECE331ButtonPressed(){
+    Class = "ECE 331";
+    classWindow->CloseWindow();
+    confirmWindow->openWindow();
+    showConfirm();
+}
+
+void MainWindow::classECE332ButtonPressed(){
+    Class = "ECE 332";
+    classWindow->CloseWindow();
+    confirmWindow->openWindow();
+    showConfirm();
+}
+
+void MainWindow::classECE341ButtonPressed(){
+    Class = "ECE 341";
+    classWindow->CloseWindow();
+    confirmWindow->openWindow();
+    showConfirm();
+}
+
+void MainWindow::classECE347ButtonPressed(){
+    Class = "ECE 347";
+    classWindow->CloseWindow();
+    confirmWindow->openWindow();
+    showConfirm();
+}
+
+void MainWindow::classECE348ButtonPressed(){
+    Class = "ECE 348";
+    classWindow->CloseWindow();
+    confirmWindow->openWindow();
+    showConfirm();
+}
+
+void MainWindow::classECE351ButtonPressed(){
+    Class = "ECE 351";
+    classWindow->CloseWindow();
+    confirmWindow->openWindow();
+    showConfirm();
+}
+
+void MainWindow::classECE361ButtonPressed(){
+    Class = "ECE 361";
+    classWindow->CloseWindow();
+    confirmWindow->openWindow();
+    showConfirm();
+}
+
+void MainWindow::classECE362ButtonPressed(){
+    Class = "ECE 362";
+    classWindow->CloseWindow();
+    confirmWindow->openWindow();
+    showConfirm();
+}
+
+void MainWindow::classECE371ButtonPressed(){
+    Class = "ECE 371";
+    classWindow->CloseWindow();
+    confirmWindow->openWindow();
+    showConfirm();
+}
+
+void MainWindow::classECE372ButtonPressed(){
+    Class = "ECE 372";
+    classWindow->CloseWindow();
+    confirmWindow->openWindow();
+    showConfirm();
+}
+
+void MainWindow::classECE373ButtonPressed(){
+    Class = "ECE 373";
+    classWindow->CloseWindow();
+    confirmWindow->openWindow();
+    showConfirm();
+}
+
+void MainWindow::classECE383ButtonPressed(){
+    Class = "ECE 383";
+    classWindow->CloseWindow();
+    confirmWindow->openWindow();
+    showConfirm();
+}
+
+void MainWindow::classOtherButtonPressed(){
+    Class = "Other";
+    classWindow->CloseWindow();
+    confirmWindow->openWindow();
+    showConfirm();
+}
+
+void MainWindow::classCancelButtonPressed(){
+    classWindow->CloseWindow();
+    theList->show();
+    signInWindow->openWindow();
+}
+
+void MainWindow::confirmConfirmButtonPressed(){
+     stack.add(new Student(id, name, Class, signInTime, date));  //add to the stack.
+     ++numberOnList;
+     updateTable();
+     confirmWindow->closeWindow();
+     hideConfirm();
+     theList->show();
+     signInWindow->openWindow();
+     theList->scrollToBottom();
+}
+
+void MainWindow::confirmCancelButtonPressed(){
+    confirmWindow->closeWindow();
+    hideConfirm();
+    theList->show();
+    signInWindow->openWindow();
+}
+
+void MainWindow::showConfirm(){
+    confirmWindow->nameOutput->setText(name);
+    confirmWindow->ClassOutput->setText(Class);
+}
+
+void MainWindow::hideConfirm(){
+    confirmWindow->nameOutput->setText("");
+    confirmWindow->ClassOutput->setText("");
+}
+
 void MainWindow::buildTable(int rows) {
   theList->removeRow(rows);
   theList->insertRow(rows);
-  //theList->move(400,100);
-  theList->move(450, 100);
-  theList->resize(870, 300);
-  theList->setHorizontalHeaderLabels(QStringList() << "Name" << "Date" << "Sign-in Time" << "Sing-Out Time");
+  theList->move(265, 100);
+  theList->resize(900, 300);
+  theList->setHorizontalHeaderLabels(QStringList() << "Name" << "Class" << "Sign-in Time");
   theList->setEditTriggers(QAbstractItemView::NoEditTriggers);
   theList->horizontalHeader()->setSectionResizeMode(QHeaderView::Fixed);
   theList->verticalHeader()->setSectionResizeMode(QHeaderView::Fixed);
-  theList->setColumnWidth(0, 200);
-  theList->setColumnWidth(1, 200);
-  theList->setColumnWidth(2, 225);
-  theList->setColumnWidth(3, 200);
+  theList->setColumnWidth(0, 300);
+  theList->setColumnWidth(1, 300);
+  theList->setColumnWidth(2, 300);
 }
 
 void MainWindow::updateTable() {
@@ -567,9 +692,8 @@ void MainWindow::updateTable() {
   int row = 0;
   while (current != nullptr) {
     theList->setItem(row, 0, new QTableWidgetItem(current->name));
-    theList->setItem(row, 1, new QTableWidgetItem(current->date.toString("MMMM dd, yyyy")));
+    theList->setItem(row, 1, new QTableWidgetItem(current->Class));
     theList->setItem(row, 2, new QTableWidgetItem(current->signInTime.toString("hh:mm a")));
-    theList->setItem(row, 3, new QTableWidgetItem(current->signOutTime.toString("hh:mm a")));
     current = current->next;
     ++row;
   }

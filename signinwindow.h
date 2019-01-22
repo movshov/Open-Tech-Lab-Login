@@ -15,7 +15,7 @@ public:
     QFont font, buttonFont;
     QPushButton * loginButton, * noIdButton;
     QLineEdit * loginDialog;
-    QLabel * logo, * title, * loginText;
+    QLabel * logo1, * logo2, * title, * loginText;
 
     SignInWindow(QWidget * parnent = 0);
     void openWindow();
