@@ -15,22 +15,18 @@
 
 
 using namespace std;
-//"D:/QT5/Projects/Circuit_Lounge_Login/SavedRecords/";     //PC Version.
-//Users/barmovshovich/Desktop/Desktop/College/CS/Open-Tech-Lab-Login-master/Access.txt";    //Mac Version.
 
-const QString RECORDS_FILE = "/Users/barmovshovich/Desktop/Desktop/College/CS/IEEE-Circuit-Lounge-master/Database.txt";
-const QString LOG_DIR = "/Users/barmovshovich/Desktop/Desktop/College/CS/IEEE-Circuit-Lounge-master/SavedRecords/";
+const QString ACCESS_FILE = "/Users/barmovshovich/Desktop/Desktop/College/CS/Open-Tech-Lab-Login-master/Access.txt";
+const QString LOG_DIR = "D:/QT5/Projects/Lab_Login/SavedRecords/";
 
-class SignInWindow; //Window below table of current students in the room.
-class ClassWindow;  //Window of available Classes to get help with.
-class ConfirmWindow;    //Window to Confirm User input.
+class SignInWindow; //window below table of current students in the room.
 
 struct Student {    //struct for Student Info.
-    Student(QString, QString, QString, QTime, QDate); //constructor.
+    Student(QString, QString, QTime, QTime, QDate); //constructor.
     ~Student(); //destructor.
 
-    QString id, name, Class;
-    QTime signInTime;
+    QString id, name;
+    QTime signInTime, signOutTime;
     QDate date;
     Student * next;
     Student * previous;
@@ -41,9 +37,11 @@ struct Stack {
     Stack(const Stack&);    //copy constructor.
     ~Stack();   //destructor.
     void add(Student*); //add a student to the stack. 
-    void DeleteList();  //remove everyone from the list.
+    bool containsId(QString);
+    bool containsName(QString); //checks LLL to see if they are already on the list.
+    void removeFromList();
     void saverecords();  //record the stack into a .txt file if the program is forcefully shut off.   
-    void dailysave(QString);  //if one month has passed save the stack into a .txt file named "that month + year.txt"
+    void monthlysave(QString, QString);  //if one month has passed save the stack into a .txt file named "that month + year.txt"
     //EX: "December_2019.txt", "November_2019.txt"
     Student * head; //head pointer.
     Student * tail; //tail pointer.
@@ -77,20 +75,17 @@ class MainWindow : public QMainWindow{
     Q_OBJECT
 
     int numberOnList;
-    QString id, name, Class;
-    QTime signInTime;
+    QString id, name;
+    QTime signInTime, signOutTime;
     QDate date;
     QLabel * errorText;
     QTableWidget * theList;
     Stack stack;
     Database database;
     SignInWindow * signInWindow;
-    ClassWindow * classWindow;
-    ConfirmWindow * confirmWindow;
     QTimer *timer;
 
-    void showConfirm();
-    void hideConfirm();
+
     void buildTable(int);   //build the table.
     void updateTable();     //update the already built table.
     //void checkmonth(Stack stack);   //check if one month has passed.
@@ -98,46 +93,12 @@ class MainWindow : public QMainWindow{
 
 private slots:
     void signInLogInButtonPressed();
-
-    void classECE101ButtonPressed();
-    void classECE102ButtonPressed();
-    void classECE103ButtonPressed();
-    void classECE171ButtonPressed();
-    void classECE172ButtonPressed();
-    void classECE211ButtonPressed();
-    void classECE212ButtonPressed();
-    void classECE221ButtonPressed();
-    void classECE222ButtonPressed();
-    void classECE223ButtonPressed();
-    void classECE241ButtonPressed();
-    void classECE315ButtonPressed();
-    void classECE316ButtonPressed();
-    void classECE317ButtonPressed();
-    void classECE321ButtonPressed();
-    void classECE322ButtonPressed();
-    void classECE323ButtonPressed();
-    void classECE331ButtonPressed();
-    void classECE332ButtonPressed();
-    void classECE341ButtonPressed();
-    void classECE347ButtonPressed();
-    void classECE348ButtonPressed();
-    void classECE351ButtonPressed();
-    void classECE361ButtonPressed();
-    void classECE362ButtonPressed();
-    void classECE371ButtonPressed();
-    void classECE372ButtonPressed();
-    void classECE373ButtonPressed();
-    void classECE383ButtonPressed();
-    void classOtherButtonPressed(); //user has picked Other class.
-    void classCancelButtonPressed();    //user has canceled signup.
-
-    void confirmConfirmButtonPressed(); //User confirms info is correct.
-    void confirmCancelButtonPressed();  //user confirms info is incorrect.
-
-    void checktime();      //slots wrapper for checkmonth(stack).
+     void checkmonth();      //slots wrapper for checkmonth(stack).
 
 public:
     MainWindow();
+
+
 
 };
 

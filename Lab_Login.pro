@@ -29,20 +29,15 @@ CONFIG += c++11
 SOURCES += \
         main.cpp \
         mainwindow.cpp \
-    signinwindow.cpp \
-    classwindow.cpp \
-    confirmwindow.cpp
+    signinwindow.cpp
 
 
 HEADERS += \
         mainwindow.h \
-    signinwindow.h \
-    classwindow.h \
-    confirmwindow.h
+    signinwindow.h
 
 
-FORMS += \
-    mainwindow.ui
+FORMS +=
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin
@@ -51,5 +46,4 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 
 DISTFILES += \
     Access.txt \
-    README.txt \
-    Database.txt
+    README.txt
