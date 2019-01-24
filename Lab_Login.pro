@@ -29,12 +29,14 @@ CONFIG += c++11
 SOURCES += \
         main.cpp \
         mainwindow.cpp \
-    signinwindow.cpp
+    signinwindow.cpp \
+    registerwindow.cpp
 
 
 HEADERS += \
         mainwindow.h \
-    signinwindow.h
+    signinwindow.h \
+    registerwindow.h
 
 
 FORMS +=
@@ -46,4 +48,6 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 
 DISTFILES += \
     Access.txt \
-    README.txt
+    README.txt \
+    Guest Agreed Rules.txt \
+    Guest Agreed Rules.txt

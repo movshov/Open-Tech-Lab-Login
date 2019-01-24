@@ -16,10 +16,11 @@
 
 using namespace std;
 
-const QString ACCESS_FILE = "/Users/barmovshovich/Desktop/Desktop/College/CS/Open-Tech-Lab-Login-master/Access.txt";
+const QString ACCESS_FILE = "D:/QT5/Projects/Lab_Login/Access.txt";
 const QString LOG_DIR = "D:/QT5/Projects/Lab_Login/SavedRecords/";
 
 class SignInWindow; //window below table of current students in the room.
+class RegisterWindow;   //window to have users accept Lab Rules and Regulations.
 
 struct Student {    //struct for Student Info.
     Student(QString, QString, QTime, QTime, QDate); //constructor.
@@ -83,6 +84,7 @@ class MainWindow : public QMainWindow{
     Stack stack;
     Database database;
     SignInWindow * signInWindow;
+    RegisterWindow * registerWindow;
     QTimer *timer;
 
 
@@ -93,13 +95,15 @@ class MainWindow : public QMainWindow{
 
 private slots:
     void signInLogInButtonPressed();
-     void checkmonth();      //slots wrapper for checkmonth(stack).
+
+    void registerRegisterButtonPressed();
+    void registerCancelButtonPressed();
+    void registerIDDialogEntered();
+
+    void checkmonth();      //slots wrapper for checkmonth(stack).
 
 public:
     MainWindow();
-
-
-
 };
 
 #endif // MAINWINDOW_H

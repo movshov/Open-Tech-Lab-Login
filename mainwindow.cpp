@@ -1,5 +1,7 @@
 #include "mainwindow.h"
+#include "ui_mainwindow.h"
 #include "signinwindow.h"
+#include "registerwindow.h"
 
 /**
  * @brief Student::Student
@@ -42,15 +44,6 @@ Stack::Stack(){
     this->tail = nullptr;
 }
 
-/**
-* @brief Stack::Stack
-*       Copy constructor for Stack.
-* @param toCopy
-*       toCopy is the new Stack we want to use.
-*/
-Stack::Stack(const Stack & toCopy){
-
-}
 /**
  *  @brief Stack::~Stack
  *      Destructor for the class containing the list of students that have visited the room.
@@ -412,6 +405,7 @@ int Database::hash(QString id) {
 
 MainWindow::MainWindow(){
     signInWindow = new SignInWindow(this);
+    registerWindow = new RegisterWindow(this);
 
     errorText = new QLabel(this);
     errorText->resize(400,40);
@@ -433,6 +427,9 @@ MainWindow::MainWindow(){
     connect(timer, SIGNAL(timeout()),this, SLOT(checkmonth()));
     connect(signInWindow->loginButton, SIGNAL(clicked()), this, SLOT(signInLogInButtonPressed()));
     connect(signInWindow->loginDialog, SIGNAL(returnPressed()), this, SLOT(signInLogInButtonPressed()));
+
+    connect(registerWindow->cancelButton, SIGNAL(clicked()), this, SLOT(registerCancelButtonPressed()));
+    connect(registerWindow->regButton, SIGNAL(clicked()), this, SLOT(registerRegisterButtonPressed()));
 
     setWindowTitle("PDX Open Tech Lab Sign In");
     resize(XRES,YRES);  //resize to default x and y res.
@@ -479,7 +476,7 @@ void MainWindow::checkmonth(){
         }else if(checkmonth.compare("11")==0){  //check if month is November.
             SaveMonth = "October"; //save as month prior.
         }else if(checkmonth.compare("12")==0){  //check if month is December.
-            SaveMonth = "November"; //save as month prior. 
+            SaveMonth = "November";
         }
         stack.monthlysave(SaveMonth, SaveYear);
         numberOnList = 0;   //after saveing reset list #.
@@ -507,14 +504,11 @@ void MainWindow::signInLogInButtonPressed() {
 
     RegInfo * student = database.getStudent(id);
     if (!student) { //if id is not in the database
+      theList->hide();
       signInWindow->closeWindow();
-      signInWindow->openWindow();
-      errorText->move(1080, 525);
-      errorText->setText("You do not have access to be in this room");
-      errorText->show();
-      return;
+      registerWindow->openWindow();
     }
-    else { //if the id is registered, go to class window
+    else { //if the id is registered.
       if (stack.containsId(student->id)==true) {  //they are on the list but have not checked out.
             Student * current = stack.tail; //grab the end of the list.
             while(current != nullptr){
@@ -538,11 +532,38 @@ void MainWindow::signInLogInButtonPressed() {
       updateTable();
       signInWindow->closeWindow();
       signInWindow->openWindow();
-      theList->scrollToBottom();
+       theList->scrollToBottom();
       return;
     }
 
 }
+
+void MainWindow::registerRegisterButtonPressed(){
+    if(registerWindow->nameDialog->cursorPosition() < 3){
+        registerWindow->nameDialog->clear();
+        registerWindow->nameDialog->setFocus();
+        errorText->move(910,525);
+        errorText->setText("Please enter a name with at leaast 3 characters");
+        errorText->show();
+        return;
+    }
+    name = registerWindow->nameDialog->text();
+    database.addStudent(id,name);   //add to Hash Table.
+    errorText->hide();
+    registerWindow->closeWindow();
+}
+
+void MainWindow::registerCancelButtonPressed(){
+    errorText->hide();
+    registerWindow->closeWindow();
+    theList->show();
+    signInWindow->openWindow();
+}
+
+void MainWindow::registerIDDialogEntered(){
+    registerWindow->nameDialog->setFocus();
+}
+
 void MainWindow::buildTable(int rows) {
   theList->removeRow(rows);
   theList->insertRow(rows);
