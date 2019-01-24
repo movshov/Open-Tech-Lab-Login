@@ -1,4 +1,3 @@
-Version 2.0 of Lab_Login Program
 
 An electronic sign-in application for the open tech lab
 at Portland State University.
