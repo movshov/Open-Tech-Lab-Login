@@ -15,6 +15,8 @@
 
 
 using namespace std;
+//"D:/QT5/Projects/Circuit_Lounge_Login/SavedRecords/";     //PC Version.
+//Users/barmovshovich/Desktop/Desktop/College/CS/Open-Tech-Lab-Login-master/Access.txt";    //Mac Version.
 
 const QString ACCESS_FILE = "D:/QT5/Projects/Lab_Login/Access.txt";
 const QString LOG_DIR = "D:/QT5/Projects/Lab_Login/SavedRecords/";
