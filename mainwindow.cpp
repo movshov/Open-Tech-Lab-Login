@@ -494,7 +494,7 @@ void MainWindow::signInLogInButtonPressed() {
   if (signInWindow->loginDialog->cursorPosition() < 9) {
     signInWindow->closeWindow();
     signInWindow->openWindow();
-    errorText->move(1080, 525);
+    errorText->move(880, 525);
     errorText->setText("Please enter a valid\n9-digit ODIN ID");
     errorText->show();
     return;
@@ -568,16 +568,16 @@ void MainWindow::buildTable(int rows) {
   theList->removeRow(rows);
   theList->insertRow(rows);
   //theList->move(400,100);
-  theList->move(450, 100);
+  theList->move(250, 100);
   theList->resize(870, 300);
   theList->setHorizontalHeaderLabels(QStringList() << "Name" << "Date" << "Sign-in Time" << "Sing-Out Time");
   theList->setEditTriggers(QAbstractItemView::NoEditTriggers);
   theList->horizontalHeader()->setSectionResizeMode(QHeaderView::Fixed);
   theList->verticalHeader()->setSectionResizeMode(QHeaderView::Fixed);
-  theList->setColumnWidth(0, 200);
-  theList->setColumnWidth(1, 200);
-  theList->setColumnWidth(2, 225);
-  theList->setColumnWidth(3, 200);
+  theList->setColumnWidth(0, 225);
+  theList->setColumnWidth(1, 209);
+  theList->setColumnWidth(2, 209);
+  theList->setColumnWidth(3, 209);
 }
 
 void MainWindow::updateTable() {
