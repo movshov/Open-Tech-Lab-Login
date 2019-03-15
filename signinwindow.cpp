@@ -8,19 +8,19 @@ SignInWindow::SignInWindow(QWidget * parent) : QWidget(parent){
     buttonFont.setBold(true);   //set button font to be bolded.
 
     loginText = new QLabel("Welcome! Please scan your PSU ID barcode or type in your ODIN ID below", parent);
-    loginText->move(445, 425);
+    loginText->move(200, 425);
     loginText->resize(1300, 50);
     loginText->setFont(buttonFont);
     loginText->hide();
 
     loginButton = new QPushButton("Sign-in", parent);
-    loginButton->move(870, 500);
+    loginButton->move(670, 500);
     loginButton->resize(200, 80);
     loginButton->hide();
     loginButton->setFont(buttonFont);
 
     loginDialog = new QLineEdit(parent);
-    loginDialog->move(670, 500);
+    loginDialog->move(470, 500);
     loginDialog->resize(200, 80);
     loginDialog->setPlaceholderText("ODIN ID");
     loginDialog->setMaxLength(9);
@@ -32,7 +32,7 @@ SignInWindow::SignInWindow(QWidget * parent) : QWidget(parent){
 
     title = new QLabel("Open Tech Lab Sign-IN/OUT", parent);
     title->setFont(font);
-    title->move(580, 0);
+    title->move(420, 0);
     title->resize(600, 150);
   }
 
